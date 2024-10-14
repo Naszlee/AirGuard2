@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 Air Quality Monitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: #f18e4a;  /* Updated to the requested color */
+      color: white;                
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    /* Logo style */
+    .logo {
+      width: 100px; /* Adjust the size as needed */
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .data {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .refresh-button {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .refresh-button:hover {
+      background-color: #45a049;
+    }
+
+    .loading {
+      font-size: 18px;
+      color: #ff9800;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Add the logo at the top -->
+    <img src="itplogo2.png" alt="App Logo" class="logo">
+    
+    <h1>Air Quality Monitor</h1>
+    <p id="air-quality" class="data">Loading air quality...</p>
+    <p id="window-status" class="data">Loading window status...</p>
+    <button class="refresh-button" onclick="fetchData()">Refresh Data</button>
+  </div>
+
+  <script>
+    const esp32Ip = 'http://192.168.1.100';  // Replace with your ESP32's actual IP address
+
+    function fetchData() {
+      const airQualityElement = document.getElementById('air-quality');
+      const windowStatusElement = document.getElementById('window-status');
+
+      airQualityElement.innerHTML = '<span class="loading">Fetching air quality...</span>';
+      windowStatusElement.innerHTML = '<span class="loading">Fetching window status...</span>';
+
+      fetch(esp32Ip)
+        .then(response => response.text())
+        .then(data => {
+          // Data format: "Air Quality: <value>, Window Status: <open/closed>"
+          const [airQualityData, windowStatusData] = data.split(', ');
+
+          airQualityElement.innerHTML = airQualityData;  // Example: "Air Quality: 456"
+          windowStatusElement.innerHTML = windowStatusData;  // Example: "Window Status: Open"
+        })
+        .catch(error => {
+          airQualityElement.innerHTML = 'Error fetching air quality data';
+          windowStatusElement.innerHTML = 'Error fetching window status';
+        });
+    }
+
+    // Fetch data on initial load
+    window.onload = fetchData;
+
+    // Optional: Refresh data every 5 seconds automatically
+    setInterval(fetchData, 5000);
+  </script>
+
+</body>
+</html>
